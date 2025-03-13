@@ -1,15 +1,13 @@
 "use client";
+import type { model } from "@/app/types";
+
 import { useEffect, useState } from "react";
 import { Button } from "@heroui/button";
 import { Slider } from "@heroui/slider";
 import { Input } from "@heroui/input";
 
+import { modelInfo, modelOutput } from "@/app/actions";
 import { LLMOutput } from "@/components/llmoutput";
-
-type model = {
-  name: string;
-  url: string;
-};
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
@@ -21,56 +19,58 @@ export default function Home() {
   const [models, setModels] = useState<model[]>([]);
 
   const handleModelLoad = async () => {
-    const response = await fetch("/api/models");
-    const json = await response.json();
+    const models = await modelInfo();
 
-    setModels(json.models);
+    setModels(models);
   };
 
   useEffect(() => {
     handleModelLoad();
   }, []);
 
-  const handleOutput = () => {
+  const handleOutput = async () => {
     if (prompt === "") {
       return;
     }
-    models.forEach((model, i) => {
-      setLoading((prev) => {
-        return { ...prev, [i]: true };
-      });
-      setOutput((prev) => {
-        return { ...prev, [i]: "" };
-      });
-      fetch(`${model.url}/v1/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: model.name,
-          prompt: prompt,
-          max_tokens: maxTokens,
-          temparature: temparature,
-        }),
-      })
-        .then((response) => {
-          return response.json();
-        })
-        .then((json) => {
-          setOutput((prev) => {
-            return { ...prev, [i]: json.choices[0].text };
-          });
-          setLoading((prev) => {
-            return { ...prev, [i]: false };
-          });
-        })
-        .catch((error) => {
-          setError((prev) => {
-            return { ...prev, [i]: error };
-          });
-        });
+
+    // Reset outputs, errors, and set loading to true for all models
+    setOutput({});
+    setError({});
+    const initialLoading: Record<number, boolean> = {};
+
+    models.forEach((_, i) => {
+      initialLoading[i] = true;
     });
+    setLoading(initialLoading);
+
+    // Create an array of promises for each model's output
+    const outputPromises = models.map(async (model, i) => {
+      try {
+        const result = await modelOutput(model, prompt, maxTokens, temparature);
+
+        return { index: i, output: result, error: "" };
+      } catch (e) {
+        return { index: i, output: "", error: "Failed to fetch output" + e };
+      }
+    });
+
+    // Wait for all promises to resolve
+    const results = await Promise.all(outputPromises);
+
+    // Update state based on the results
+    const newOutput: Record<number, string> = {};
+    const newError: Record<number, string> = {};
+    const newLoading: Record<number, boolean> = {};
+
+    results.forEach((result) => {
+      newOutput[result.index] = result.output;
+      newError[result.index] = result.error;
+      newLoading[result.index] = false;
+    });
+
+    setOutput(newOutput);
+    setError(newError);
+    setLoading(newLoading);
     setPrompt("");
   };
 

@@ -29,15 +29,17 @@ export const LLMOutput = ({
   };
 
   return (
-    <Card className="col-span-4 p-4 my-4">
+    <Card className="col-span-4 p-4 my-4 max-h-96 overflow-y-auto">
       <CardHeader>
         <p>Model: {model}</p>
       </CardHeader>
       <CardBody>
         <div className="gap-4 items-center justify-center">
-          <div className="">
+          <div className="flex flex-col gap-4">
             <h1>Output</h1>
-            {loading && <Spinner className="justify-center" />}
+            {loading && (
+              <Spinner className="justify-center w-full h-full items-center" />
+            )}
             {output !== "" && <div>{renderTextWithBreaks(output)}</div>}
             {error !== "" && <p className="text-red-500">{error}</p>}
           </div>
