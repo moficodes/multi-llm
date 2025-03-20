@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-gemma-3-12b-it-deployment
+spec:
+  selector:
+    matchLabels:
+      name: ollama
+  template:
+    metadata:
+      labels:
+        name: ollama
+    spec:
+      containers:
+      - name: ollama
+        image: us-docker.pkg.dev/mofilabs/llm/ollama-gemma-3-12b:0.0.1
+        ports:
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+        resources:
+          requests:
+            cpu: "4"
+            memory: "32Gi"
+            ephemeral-storage: "32Gi"
+            nvidia.com/gpu: "2"
+          limits:
+            cpu: "4"
+            memory: "32Gi"
+            ephemeral-storage: "32Gi"
+            nvidia.com/gpu: "2"
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+        cloud.google.com/gke-gpu-driver-version: latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ollama-gemma-3-3b-it-service
+spec:
+  selector:
+    name: ollama
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
