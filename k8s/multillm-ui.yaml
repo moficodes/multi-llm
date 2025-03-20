@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: multillm-ui
+spec:
+  selector:
+    matchLabels:
+      app: multillm-ui
+  template:
+    metadata:
+      labels:
+        app: multillm-ui
+    spec:
+      containers:
+      - name: multillm-ui
+        image: us-docker.pkg.dev/mofilabs/llm/multillm-ui:v0.0.7
+        env:
+        - name: LLM_URLS
+          value: "http://ollama-gemma-3-3b-it-service:8000,http://tgi-llama-3-3b-it-service:8000,http://vllm-gemma-3-27b-service:8000,http://vllm-gemma-3-4b-it-service:8000"
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 3000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: multillm-ui
+spec:
+  type: LoadBalancer
+  selector:
+    app: multillm-ui
+  ports:
+  - port: 80
+    targetPort: 3000
