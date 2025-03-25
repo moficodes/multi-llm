@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+    name: hyperdisk-ml
+parameters:
+    type: hyperdisk-ml
+    provisioned-throughput-on-create: "2400Mi"
+provisioner: pd.csi.storage.gke.io
+allowVolumeExpansion: false
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+mountOptions:
+  - read_ahead_kb=4096

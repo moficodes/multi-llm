@@ -1,0 +1,73 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-llama3-8b-it-tpu-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: llama-3-8b-tpu
+  template:
+    metadata:
+      labels:
+        app: llama-3-8b-tpu
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-tpu-topology: 2x4
+        cloud.google.com/gke-tpu-accelerator: tpu-v5-lite-podslice
+      containers:
+      - name: vllm-tpu
+        image: docker.io/vllm/vllm-tpu:2e33fe419186c65a18da6668972d61d7bbc31564
+        command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+        args:
+        - --host=0.0.0.0
+        - --port=8000
+        - --tensor-parallel-size=8
+        - --max-model-len=4096
+        - --model=meta-llama/Llama-3.1-8B-Instruct
+        env: 
+        - name: HUGGING_FACE_HUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-secret
+              key: hf_api_token
+        ports:
+        - containerPort: 8000
+        resources:
+          requests:
+            google.com/tpu: "8"
+            cpu: "4"
+            memory: "40Gi"
+            ephemeral-storage: "40Gi"
+          limits:
+            google.com/tpu: "8"
+            cpu: "4"
+            memory: "40Gi"
+            ephemeral-storage: "40Gi"
+        readinessProbe:
+          tcpSocket:
+            port: 8000
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        volumeMounts:
+        - name: dshm
+          mountPath: /dev/shm
+      volumes:
+      - name: dshm
+        emptyDir:
+          medium: Memory
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-llama3-8b-it-service
+spec:
+  selector:
+    app: llama-3-8b-tpu   
+  type: ClusterIP
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8000  
+      targetPort: 8000

@@ -1,0 +1,11 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: producer-pvc
+spec:
+  storageClassName: hyperdisk-ml
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 800Gi

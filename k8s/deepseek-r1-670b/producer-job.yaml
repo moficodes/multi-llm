@@ -1,0 +1,52 @@
+
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: producer-job
+spec:
+  template:  # Template for the Pods the Job will create
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: cloud.google.com/machine-family
+                operator: In
+                values:
+                - "c3"
+            - matchExpressions:
+              - key: topology.kubernetes.io/zone
+                operator: In
+                values:
+                - "us-central1-a"
+      containers:
+      - name: copy
+        resources:
+          requests:
+            cpu: "32"
+          limits:
+            cpu: "32"
+        image: python:3.11-alpine
+        command:
+        - sh
+        - -c
+        - "pip install 'huggingface_hub==0.24.6' && \
+          huggingface-cli download deepseek-ai/DeepSeek-R1 --local-dir-use-symlinks=False --local-dir=/data/DeepSeek-R1 --include *.safetensors *.json *.py"
+        env:
+        - name: HUGGING_FACE_HUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-secret
+              key: hf_api_token
+        volumeMounts:
+          - mountPath: "/data"
+            name: volume
+      restartPolicy: Never
+      volumes:
+        - name: volume
+          persistentVolumeClaim:
+            claimName: producer-pvc
+  parallelism: 1         # Run 1 Pods concurrently
+  completions: 1         # Once 1 Pods complete successfully, the Job is done
+  backoffLimit: 4        # Max retries on failure

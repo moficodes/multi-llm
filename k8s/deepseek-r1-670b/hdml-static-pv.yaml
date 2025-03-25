@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: hdml-static-pv
+spec:
+  storageClassName: "hyperdisk-ml"
+  capacity:
+    storage: 800Gi
+  accessModes:
+    - ReadOnlyMany
+  claimRef:
+    namespace: default
+    name: hdml-static-pvc
+  csi:
+    driver: pd.csi.storage.gke.io
+    volumeHandle: projects/gkebatchenve1667028/zones/us-central1-a/disks/pvc-4e79c2ff-650b-4cd7-9e7d-1a00cadeb289
+    fsType: ext4
+    readOnly: true
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: topology.gke.io/zone
+          operator: In
+          values:
+          - us-central1-a
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: default
+  name: hdml-static-pvc
+spec:
+  storageClassName: "hyperdisk-ml"
+  volumeName: hdml-static-pv
+  accessModes:
+  - ReadOnlyMany
+  resources:
+    requests:
+      storage: 800Gi

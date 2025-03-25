@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
       - name: ollama
-        image: us-docker.pkg.dev/mofilabs/llm/ollama-gemma-3-12b:0.0.1
+        image: us-docker.pkg.dev/gkebatchenve1667028/genai/ollama-gemma-3-12b:0.1.0
         ports:
         - name: http
           containerPort: 8000
