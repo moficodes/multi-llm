@@ -13,7 +13,8 @@ spec:
     name: hdml-static-pvc
   csi:
     driver: pd.csi.storage.gke.io
-    volumeHandle: projects/gkebatchenve1667028/zones/us-central1-a/disks/pvc-4e79c2ff-650b-4cd7-9e7d-1a00cadeb289
+    # this changes on each cluster
+    volumeHandle: projects/mofilabs/zones/us-central1-b/disks/pvc-89412b31-0837-4117-93d3-13ad59ee399f
     fsType: ext4
     readOnly: true
   nodeAffinity:

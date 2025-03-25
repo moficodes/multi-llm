@@ -16,6 +16,7 @@ spec:
         nodeSelector:
           cloud.google.com/gke-accelerator: nvidia-h100-80gb
           cloud.google.com/gke-spot: "true"
+          cloud.google.com/gke-gpu-driver-version: latest
         containers:
           - name: vllm-leader
             image: docker.io/vllm/vllm-openai:latest

@@ -37,14 +37,10 @@ spec:
         resources:
           requests:
             google.com/tpu: "8"
-            cpu: "4"
-            memory: "40Gi"
-            ephemeral-storage: "40Gi"
+            ephemeral-storage: "200Gi"
           limits:
             google.com/tpu: "8"
-            cpu: "4"
-            memory: "40Gi"
-            ephemeral-storage: "40Gi"
+            ephemeral-storage: "200Gi"
         readinessProbe:
           tcpSocket:
             port: 8000

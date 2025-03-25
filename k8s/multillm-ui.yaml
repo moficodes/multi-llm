@@ -13,10 +13,11 @@ spec:
     spec:
       containers:
       - name: multillm-ui
-        image: us-docker.pkg.dev/mofilabs/llm/multillm-ui:v0.0.7
+        image: us-docker.pkg.dev/mofilabs/llm/multillm-ui:v0.0.10
         env:
         - name: LLM_URLS
-          value: "http://ollama-gemma-3-3b-it-service:8000,http://tgi-llama-3-3b-it-service:8000,http://vllm-gemma-3-27b-service:8000,http://vllm-gemma-3-4b-it-service:8000"
+          value: "http://tgi-llama-3-3b-it-service:8000,http://ollama-gemma-3-3b-it-service:8000,http://vllm-gemma-3-27b-service:8000,http://vllm-gemma-3-4b-it-service:8000"
+          # value: "http://34.136.202.144:8000,http://35.184.129.121:8000/"
         resources:
           limits:
             memory: "128Mi"
