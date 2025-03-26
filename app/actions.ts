@@ -33,20 +33,30 @@ export async function modelOutput(
 ): Promise<string> {
   let result = "";
   try {
-    const response = await fetch(`${model.url}/v1/completions`, {
+    const response = await fetch(`${model.url}/v1/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         model: model.name,
-        prompt: prompt,
-        max_tokens: maxTokens,
+        messages: [
+          {
+            role: "system",
+            content: "you are an helpful ai assistant. you will answer the users questions. be brief and to the point. try to be factual and kind. do not use slang or jargon. do not use abbreviations. do not use emojis. try to keep your answers short and simple.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          }
+        ],
+        max_completion_tokens: maxTokens,
         temparature: temparature,
       }),
     });
     const json = await response.json();
-    result = json.choices[0].text;
+    console.log(json);
+    result = json.choices[0].message.content;
   } catch (error) {
     console.log(error);
   } 
