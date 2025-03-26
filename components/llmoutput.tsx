@@ -1,21 +1,47 @@
 "use client";
 import React from "react";
+import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
+import { modelOutput } from "@/app/actions";
+import { model } from "@/app/types";
 
 type LLMOutputProps = {
-  output: string;
-  model: string;
-  loading: boolean;
-  error: string;
+  prompt: string;
+  temparature: number;
+  maxTokens: number;
+  model: model;
+  setPrompt: Dispatch<SetStateAction<string>>;
 };
 
 export const LLMOutput = ({
-  output,
+  prompt,
+  temparature,
+  maxTokens,
   model,
-  loading,
-  error,
+  setPrompt
 }: LLMOutputProps) => {
+  const [output, setOutput] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  useEffect(() => {
+    if (prompt === "") {
+      return;
+    }
+    const output = async () => {
+      setLoading(true);
+      setOutput("");
+      try {
+        const response = await modelOutput(model, prompt, maxTokens, temparature);
+        setOutput(response);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+        setPrompt("");
+      }
+    }
+    output();
+  }, [prompt])
   const renderTextWithBreaks = (text: string) => {
     return text
       ?.trim()
@@ -31,17 +57,18 @@ export const LLMOutput = ({
   return (
     <Card className="col-span-4 p-4 my-4 max-h-96 overflow-y-auto">
       <CardHeader>
-        <p>Model: {model}</p>
+        <p>Model: {model.name}</p>
       </CardHeader>
       <CardBody>
         <div className="gap-4 items-center justify-center">
           <div className="flex flex-col gap-4">
+            <h1>Prompt</h1>
+            <p>{prompt}</p>
             <h1>Output</h1>
             {loading && (
               <Spinner className="justify-center w-full h-full items-center" />
             )}
             {output !== "" && <div>{renderTextWithBreaks(output)}</div>}
-            {error !== "" && <p className="text-red-500">{error}</p>}
           </div>
         </div>
       </CardBody>

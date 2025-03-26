@@ -11,11 +11,9 @@ import { LLMOutput } from "@/components/llmoutput";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
+  const [output, setOutput] = useState("");
   const [temparature, setTemparature] = useState<number>(0.5);
   const [maxTokens, setMaxTokens] = useState<number>(128);
-  const [output, setOutput] = useState<Record<number, string>>({});
-  const [error, setError] = useState<Record<number, string>>({});
-  const [loading, setLoading] = useState<Record<number, boolean>>({});
   const [models, setModels] = useState<model[]>([]);
 
   const handleModelLoad = async () => {
@@ -28,51 +26,55 @@ export default function Home() {
     handleModelLoad();
   }, []);
 
-  const handleOutput = async () => {
-    if (prompt === "") {
-      return;
-    }
+  const handleOutput = () => {
+    setOutput(prompt);
+  }
 
-    // Reset outputs, errors, and set loading to true for all models
-    setOutput({});
-    setError({});
-    const initialLoading: Record<number, boolean> = {};
+  // const handleOutput = async () => {
+  //   if (prompt === "") {
+  //     return;
+  //   }
 
-    models.forEach((_, i) => {
-      initialLoading[i] = true;
-    });
-    setLoading(initialLoading);
+  //   // Reset outputs, errors, and set loading to true for all models
+  //   setOutput({});
+  //   setError({});
+  //   const initialLoading: Record<number, boolean> = {};
 
-    // Create an array of promises for each model's output
-    const outputPromises = models.map(async (model, i) => {
-      try {
-        const result = await modelOutput(model, prompt, maxTokens, temparature);
+  //   models.forEach((_, i) => {
+  //     initialLoading[i] = true;
+  //   });
+  //   setLoading(initialLoading);
 
-        return { index: i, output: result, error: "" };
-      } catch (e) {
-        return { index: i, output: "", error: "Failed to fetch output" + e };
-      }
-    });
+  //   // Create an array of promises for each model's output
+  //   const outputPromises = models.map(async (model, i) => {
+  //     try {
+  //       const result = await modelOutput(model, prompt, maxTokens, temparature);
 
-    // Wait for all promises to resolve
-    const results = await Promise.all(outputPromises);
+  //       return { index: i, output: result, error: "" };
+  //     } catch (e) {
+  //       return { index: i, output: "", error: "Failed to fetch output" + e };
+  //     }
+  //   });
 
-    // Update state based on the results
-    const newOutput: Record<number, string> = {};
-    const newError: Record<number, string> = {};
-    const newLoading: Record<number, boolean> = {};
+  //   // Wait for all promises to resolve
+  //   const results = await Promise.all(outputPromises);
 
-    results.forEach((result) => {
-      newOutput[result.index] = result.output;
-      newError[result.index] = result.error;
-      newLoading[result.index] = false;
-    });
+  //   // Update state based on the results
+  //   const newOutput: Record<number, string> = {};
+  //   const newError: Record<number, string> = {};
+  //   const newLoading: Record<number, boolean> = {};
 
-    setOutput(newOutput);
-    setError(newError);
-    setLoading(newLoading);
-    setPrompt("");
-  };
+  //   results.forEach((result) => {
+  //     newOutput[result.index] = result.output;
+  //     newError[result.index] = result.error;
+  //     newLoading[result.index] = false;
+  //   });
+
+  //   setOutput(newOutput);
+  //   setError(newError);
+  //   setLoading(newLoading);
+  //   setPrompt("");
+  // };
 
   // ...existing code...
   const handleTemperatureChange = (value: number | number[]) => {
@@ -123,10 +125,11 @@ export default function Home() {
           return (
             <LLMOutput
               key={index}
-              error={error[index]}
-              loading={loading[index]}
-              model={model.name}
-              output={output[index]}
+              prompt={output}
+              model={model}
+              temparature={temparature}
+              maxTokens={maxTokens}
+              setPrompt={setPrompt}
             />
           );
         })}
