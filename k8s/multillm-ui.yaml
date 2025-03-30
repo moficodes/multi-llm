@@ -31,7 +31,7 @@ kind: Service
 metadata:
   name: multillm-ui
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: multillm-ui
   ports:
