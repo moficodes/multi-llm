@@ -6,13 +6,13 @@ import { Button } from "@heroui/button";
 import { Slider } from "@heroui/slider";
 import { Input } from "@heroui/input";
 
-import { modelInfo, modelOutput } from "@/app/actions";
+import { modelInfo } from "@/app/actions";
 import { LLMOutput } from "@/components/llmoutput";
 
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [output, setOutput] = useState("");
-  const [temparature, setTemparature] = useState<number>(0.5);
+  const [temparature, setTemparature] = useState<number>(0.3);
   const [maxTokens, setMaxTokens] = useState<number>(128);
   const [models, setModels] = useState<model[]>([]);
 
@@ -28,53 +28,7 @@ export default function Home() {
 
   const handleOutput = () => {
     setOutput(prompt);
-  }
-
-  // const handleOutput = async () => {
-  //   if (prompt === "") {
-  //     return;
-  //   }
-
-  //   // Reset outputs, errors, and set loading to true for all models
-  //   setOutput({});
-  //   setError({});
-  //   const initialLoading: Record<number, boolean> = {};
-
-  //   models.forEach((_, i) => {
-  //     initialLoading[i] = true;
-  //   });
-  //   setLoading(initialLoading);
-
-  //   // Create an array of promises for each model's output
-  //   const outputPromises = models.map(async (model, i) => {
-  //     try {
-  //       const result = await modelOutput(model, prompt, maxTokens, temparature);
-
-  //       return { index: i, output: result, error: "" };
-  //     } catch (e) {
-  //       return { index: i, output: "", error: "Failed to fetch output" + e };
-  //     }
-  //   });
-
-  //   // Wait for all promises to resolve
-  //   const results = await Promise.all(outputPromises);
-
-  //   // Update state based on the results
-  //   const newOutput: Record<number, string> = {};
-  //   const newError: Record<number, string> = {};
-  //   const newLoading: Record<number, boolean> = {};
-
-  //   results.forEach((result) => {
-  //     newOutput[result.index] = result.output;
-  //     newError[result.index] = result.error;
-  //     newLoading[result.index] = false;
-  //   });
-
-  //   setOutput(newOutput);
-  //   setError(newError);
-  //   setLoading(newLoading);
-  //   setPrompt("");
-  // };
+  };
 
   // ...existing code...
   const handleTemperatureChange = (value: number | number[]) => {
@@ -113,7 +67,7 @@ export default function Home() {
         />
         <Slider
           label="Max Tokens"
-          maxValue={512}
+          maxValue={2048}
           minValue={1}
           step={1}
           value={maxTokens}
@@ -125,11 +79,11 @@ export default function Home() {
           return (
             <LLMOutput
               key={index}
-              prompt={output}
-              model={model}
-              temparature={temparature}
               maxTokens={maxTokens}
+              model={model}
+              prompt={output}
               setPrompt={setPrompt}
+              temparature={temparature}
             />
           );
         })}

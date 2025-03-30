@@ -6,6 +6,7 @@ export async function modelInfo(): Promise<model[]> {
   const MODEL = process.env.LLM_URLS || "";
   const urls = MODEL.split(",");
   const models: model[] = [];
+
   try {
     for (let i = 0; i < urls.length; i++) {
       const url = urls[i];
@@ -16,12 +17,11 @@ export async function modelInfo(): Promise<model[]> {
         },
       });
       const json = await response.json();
-  
+
       models.push({ name: json.data[0].id, url: url });
     }
-  } catch (error) {
-    console.log(error);
-  }
+  } catch (error) {}
+
   return models;
 }
 
@@ -32,6 +32,7 @@ export async function modelOutput(
   temparature: number,
 ): Promise<string> {
   let result = "";
+
   try {
     const response = await fetch(`${model.url}/v1/chat/completions`, {
       method: "POST",
@@ -43,22 +44,22 @@ export async function modelOutput(
         messages: [
           {
             role: "system",
-            content: "you are an helpful ai assistant. you will answer the users questions. be brief and to the point. try to be factual and kind. do not use slang or jargon. do not use abbreviations. do not use emojis. try to keep your answers short and simple.",
+            content:
+              "you are an helpful ai assistant. you will answer the users questions. be brief and to the point. try to be factual and kind. do not use slang or jargon. do not use abbreviations. do not use emojis. try to keep your answers short and simple.",
           },
           {
             role: "user",
             content: prompt,
-          }
+          },
         ],
         max_completion_tokens: maxTokens,
         temparature: temparature,
       }),
     });
     const json = await response.json();
-    console.log(json);
+
     result = json.choices[0].message.content;
-  } catch (error) {
-    console.log(error);
-  } 
+  } catch (error) {}
+
   return result;
 }

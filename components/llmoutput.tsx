@@ -3,7 +3,7 @@ import React from "react";
 import { useEffect, useState, Dispatch, SetStateAction } from "react";
 import { Card, CardHeader, CardBody } from "@heroui/card";
 import { Spinner } from "@heroui/spinner";
-import { modelOutput } from "@/app/actions";
+
 import { model } from "@/app/types";
 
 type LLMOutputProps = {
@@ -19,10 +19,11 @@ export const LLMOutput = ({
   temparature,
   maxTokens,
   model,
-  setPrompt
+  setPrompt,
 }: LLMOutputProps) => {
   const [output, setOutput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+
   useEffect(() => {
     if (prompt === "") {
       return;
@@ -31,17 +32,38 @@ export const LLMOutput = ({
       setLoading(true);
       setOutput("");
       try {
-        const response = await modelOutput(model, prompt, maxTokens, temparature);
-        setOutput(response);
+        const response = await fetch("/api/models", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: prompt,
+            model: model.name,
+            url: model.url,
+            maxTokens: maxTokens,
+            temparature: temparature,
+          }),
+        });
+        const json = await response.json();
+
+        if (json.message === "Error") {
+          setOutput("Error");
+
+          return;
+        }
+        const data = json.message;
+
+        setOutput(data);
       } catch (error) {
-        console.log(error);
       } finally {
         setLoading(false);
         setPrompt("");
       }
-    }
+    };
+
     output();
-  }, [prompt])
+  }, [prompt]);
   const renderTextWithBreaks = (text: string) => {
     return text
       ?.trim()
