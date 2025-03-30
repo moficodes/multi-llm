@@ -1,0 +1,34 @@
+kind: Gateway
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: multillm-gateway
+spec:
+  gatewayClassName: gke-l7-global-external-managed
+  listeners:
+  - name: https
+    protocol: HTTPS
+    port: 443
+    tls:
+      mode: Terminate
+      options:
+        networking.gke.io/pre-shared-certs: multillm-ui-cert
+  addresses:
+  - type: NamedAddress
+    value: multillm-ui
+---
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1beta1
+metadata:
+  name: multillm-httproute
+  labels:
+    gateway: multillm-route
+spec:
+  parentRefs:
+  - name: multillm-gateway
+    sectionName: https
+  hostnames:
+  - "multillm.learngke.dev"
+  rules:
+  - backendRefs:
+    - name: multillm-ui
+      port: 80
