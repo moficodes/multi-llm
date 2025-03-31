@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm-mistral-7b-it-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mistral-7b-it-server
+  template:
+    metadata:
+      labels:
+        app: mistral-7b-it-server
+        ai.gke.io/model: mistral-7b-it
+        ai.gke.io/inference-server: vllm
+        examples.ai.gke.io/source: user-guide
+    spec:
+      containers:
+      - name: inference-server
+        image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20250312_0916_RC01
+        resources:
+          requests:
+            cpu: "4"
+            memory: "40Gi"
+            ephemeral-storage: "40Gi"
+            nvidia.com/gpu: "2"
+          limits:
+            cpu: "4"
+            memory: "40Gi"
+            ephemeral-storage: "40Gi"
+            nvidia.com/gpu: "2"
+        command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+        args:
+        - --model=$(MODEL_ID)
+        - --tensor-parallel-size=2
+        - --host=0.0.0.0
+        - --port=8000
+        - --max-model-len=4096
+        - --max-num-seqs=4
+        - --tokenizer-mode=mistral
+        env:
+        - name: MODEL_ID
+          value: mistralai/Mistral-7B-Instruct-v0.3
+        - name: HUGGING_FACE_HUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-secret
+              key: hf_api_token
+        volumeMounts:
+        - mountPath: /dev/shm
+          name: dshm
+      volumes:
+      - name: dshm
+        emptyDir:
+            medium: Memory
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+        cloud.google.com/gke-gpu-driver-version: latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vllm-mistral-7b-it-service
+spec:
+  selector:
+    app: mistral-7b-it-server
+  type: ClusterIP
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
