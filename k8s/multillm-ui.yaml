@@ -14,11 +14,11 @@ spec:
     spec:
       containers:
       - name: multillm-ui
-        image: us-docker.pkg.dev/mofilabs/llm/multillm-ui:v0.0.15
+        image: us-docker.pkg.dev/mofilabs/llm/multillm-ui:v0.0.16
         env:
         - name: LLM_URLS
-          value: "http://vllm-gemma-3-4b-it-service:8000,http://tgi-llama-3-3b-it-service:8000,http://ollama-gemma-3-3b-it-service:8000,http://vllm-gemma-3-27b-service:8000,http://vllm-phi-4-4b-it-service:8000,http://vllm-falcon-10b-it-service:8000,http://vllm-mistral-7b-it-service:8000,http://vllm-qwen-qwq-32b-service:8000,http://34.136.202.144:8000,http://34.56.208.180:8000"
-          # value: "http://tgi-llama-3-3b-it-service:8000,http://ollama-gemma-3-3b-it-service:8000,http://vllm-gemma-3-27b-service:8000,http://35.184.129.121:8000,httP://34.56.208.180:8000,http://34.136.202.144:8000"
+          value: "http://vllm-gemma-3-4b-it-service:8000"
+          # value: "http://tgi-llama-3-3b-it-service:8000,http://ollama-gemma-3-3b-it-service:8000,http://vllm-gemma-3-27b-service:8000,http://vllm-phi-4-4b-it-service:8000,http://vllm-falcon-10b-it-service:8000,http://vllm-mistral-7b-it-service:8000,http://vllm-qwen-qwq-32b-service:8000,http://34.136.202.144:8000,http://34.56.208.180:8000"
         resources:
           limits:
             memory: "128Mi"

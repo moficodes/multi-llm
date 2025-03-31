@@ -74,7 +74,7 @@ export default function Home() {
           onChange={handleMaxTokensChange}
         />
       </div>
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid lg:grid-cols-12 grid-cols-4 gap-4">
         {models.map((model, index) => {
           return (
             <LLMOutput
