@@ -23,7 +23,7 @@ export async function POST(request: Request) {
           },
         ],
         max_completion_tokens: maxTokens,
-        temparature: temparature,
+        temperature: temparature,
       }),
     });
     const json = await response.json();

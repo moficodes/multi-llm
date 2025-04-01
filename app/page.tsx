@@ -12,7 +12,7 @@ import { LLMOutput } from "@/components/llmoutput";
 export default function Home() {
   const [prompt, setPrompt] = useState("");
   const [output, setOutput] = useState("");
-  const [temparature, setTemparature] = useState<number>(0.3);
+  const [temperature, setTemperature] = useState<number>(0.3);
   const [maxTokens, setMaxTokens] = useState<number>(128);
   const [models, setModels] = useState<model[]>([]);
 
@@ -33,7 +33,7 @@ export default function Home() {
   // ...existing code...
   const handleTemperatureChange = (value: number | number[]) => {
     if (typeof value === "number") {
-      setTemparature(value);
+      setTemperature(value);
     }
   };
 
@@ -62,7 +62,7 @@ export default function Home() {
           maxValue={1}
           minValue={0.0}
           step={0.1}
-          value={temparature}
+          value={temperature}
           onChange={handleTemperatureChange}
         />
         <Slider
@@ -83,7 +83,7 @@ export default function Home() {
               model={model}
               prompt={output}
               setPrompt={setPrompt}
-              temparature={temparature}
+              temperature={temperature}
             />
           );
         })}

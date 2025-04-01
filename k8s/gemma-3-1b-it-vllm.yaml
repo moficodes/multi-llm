@@ -1,1 +1,59 @@
 # TODO: Fail writing this yaml from scratch
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gemma-3-1b-it-deployment
+spec:
+  selector:
+    matchLabels:
+      app: gemma-3-1b-it
+  template:
+    metadata:
+      labels:
+        app: gemma-3-1b-it
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-accelerator: nvidia-l4
+        cloud.google.com/gke-gpu-driver-version: latest
+      containers:
+      - name: gemma-3-1b-it-deployment
+        image: us-docker.pkg.dev/vertex-ai/vertex-vision-model-garden-dockers/pytorch-vllm-serve:20250312_0916_RC01
+        resources:
+          limits:
+            memory: "20Gi"
+            cpu: "4"
+            nvidia.com/gpu: "1"
+          requests:
+            memory: "20Gi"
+            cpu: "4"
+            nvidia.com/gpu: "1"
+        command: ["python3", "-m", "vllm.entrypoints.openai.api_server"]
+        env:
+        - name: MODEL_ID
+          value: google/gemma-3-1b-it
+        - name: HUGGING_FACE_HUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: hf-secret
+              key: hf_api_token
+        volumeMounts:
+          - mountPath: /dev/shm
+            name: dshm
+        ports:
+        - containerPort: 8000
+      volumes:
+        - name: dshm
+          emptyDir:
+            medium: Memory
+            
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gemma-3-1b-it-service
+spec:
+  selector:
+    app: gemma-3-1b-it
+  ports:
+  - port: 8000
+    targetPort: 8000

@@ -8,7 +8,7 @@ import { model } from "@/app/types";
 
 type LLMOutputProps = {
   prompt: string;
-  temparature: number;
+  temperature: number;
   maxTokens: number;
   model: model;
   setPrompt: Dispatch<SetStateAction<string>>;
@@ -16,7 +16,7 @@ type LLMOutputProps = {
 
 export const LLMOutput = ({
   prompt,
-  temparature,
+  temperature,
   maxTokens,
   model,
   setPrompt,
@@ -42,7 +42,7 @@ export const LLMOutput = ({
             model: model.name,
             url: model.url,
             maxTokens: maxTokens,
-            temparature: temparature,
+            temperature: temperature,
           }),
         });
         const json = await response.json();
